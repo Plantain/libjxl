@@ -1,0 +1,1 @@
+{"batch":4,"repeats":100,"setup_ms_per_tile":0.11200504,"reconstruction_ms_per_tile":0.0682744011,"compare_ms_per_tile":0.288723588,"evaluation_ms_per_tile":0.360431671,"allocated_bytes":197132288,"observed_device_delta_bytes":199229440,"timing_gate_pass":false}

@@ -58,6 +58,10 @@
 #include "lib/jxl/image_ops.h"
 #include "lib/jxl/quant_weights.h"
 
+#if defined(JXL_GPU_SPIKE_DUMP) && HWY_ONCE
+#include "gpu/dump-inl.h"
+#endif
+
 // Set JXL_DEBUG_ADAPTIVE_QUANTIZATION to 1 to enable debugging.
 #ifndef JXL_DEBUG_ADAPTIVE_QUANTIZATION
 #define JXL_DEBUG_ADAPTIVE_QUANTIZATION 0
@@ -1011,6 +1015,10 @@ Status FindBestQuantization(const FrameHeader& frame_header,
     JXL_ASSIGN_OR_RETURN(tile_distmap,
                          TileDistMap(diffmap, 8 * cparams.resampling, 0,
                                      enc_state->shared.ac_strategy));
+#ifdef JXL_GPU_SPIKE_DUMP
+    JXL_RETURN_IF_ERROR(DumpGpuSpike(frame_header, linear, dec_linear, diffmap,
+                                     tile_distmap, enc_state, cms, i));
+#endif
     if (JXL_DEBUG_ADAPTIVE_QUANTIZATION && WantDebugOutput(cparams)) {
       JXL_RETURN_IF_ERROR(DumpImage(cparams, ("dec" + ToString(i)).c_str(),
                                     *dec_linear.color()));

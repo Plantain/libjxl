@@ -1,3 +1,6 @@
+#ifdef JXL_GPU_SPIKE_DUMP
+#include "gpu/spike_format.h"
+#endif
 // Copyright (c) the JPEG XL Project Authors. All rights reserved.
 //
 // Use of this source code is governed by a BSD-style
@@ -1728,6 +1731,16 @@ Status ModularFrameEncoder::AddVarDCTDC(const FrameHeader& frame_header,
     return JXL_FAILURE("Unsupported range of DC values");
   }
 
+#ifdef JXL_GPU_SPIKE_DUMP
+  if (std::getenv("JXL_WP3_DUMP")) {
+    JXL_ENSURE(r.xsize() == 64 && r.ysize() == 64);
+    jxl_wp3::DCPrecision() = 1.0 / mul;
+    for (int c = 0; c < 3; ++c) for (int y = 0; y < 64; ++y) {
+      const auto* row = stream_images_[stream_id].channel[c < 2 ? c ^ 1 : c].plane.Row(y);
+      std::copy_n(row, 64, jxl_wp3::CapturedDC() + c * 4096 + y * 64);
+    }
+  }
+#endif
   DequantDC(r, &enc_state->shared.dc_storage, &enc_state->shared.quant_dc,
             stream_images_[stream_id], enc_state->shared.quantizer.MulDC(),
             1.0 / mul, color_correlation.DCFactors(),

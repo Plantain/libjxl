@@ -9,6 +9,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 project(LIBJXL LANGUAGES C CXX)
 
+option(JPEGXL_GPU_SPIKE "Build the WP3 CUDA reconstruction/Butteraugli spike" OFF)
+if(JPEGXL_GPU_SPIKE)
+  add_compile_definitions(JXL_GPU_SPIKE_DUMP)
+endif()
+
 message(STATUS "CMake version: ${CMAKE_VERSION}")
 message(STATUS "Compiler IDs\
  C:${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION},\
@@ -542,4 +547,8 @@ if(NOT TARGET uninstall)
 
   add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
+if(JPEGXL_GPU_SPIKE)
+  add_subdirectory(gpu)
 endif()

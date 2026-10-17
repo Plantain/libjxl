@@ -1,0 +1,204 @@
+{
+  "files": 120,
+  "gab_epf": [
+    [
+      1,
+      1
+    ]
+  ],
+  "strategy_counts": [
+    111708,
+    2349,
+    9501,
+    0,
+    1587,
+    9122,
+    2329,
+    2420,
+    0,
+    0,
+    1149,
+    1187,
+    1459,
+    2859,
+    1038,
+    911,
+    1042,
+    935,
+    2673,
+    158,
+    97,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "present_types": 18,
+  "transform_anchors": 152524,
+  "strategies": [
+    {
+      "type": 0,
+      "name": "DCT",
+      "count": 111708,
+      "implemented": true
+    },
+    {
+      "type": 1,
+      "name": "IDENTITY",
+      "count": 2349,
+      "implemented": true
+    },
+    {
+      "type": 2,
+      "name": "DCT2X2",
+      "count": 9501,
+      "implemented": true
+    },
+    {
+      "type": 3,
+      "name": "DCT4X4",
+      "count": 0,
+      "implemented": true
+    },
+    {
+      "type": 4,
+      "name": "DCT16X16",
+      "count": 1587,
+      "implemented": true
+    },
+    {
+      "type": 5,
+      "name": "DCT32X32",
+      "count": 9122,
+      "implemented": true
+    },
+    {
+      "type": 6,
+      "name": "DCT16X8",
+      "count": 2329,
+      "implemented": true
+    },
+    {
+      "type": 7,
+      "name": "DCT8X16",
+      "count": 2420,
+      "implemented": true
+    },
+    {
+      "type": 8,
+      "name": "DCT32X8",
+      "count": 0,
+      "implemented": true
+    },
+    {
+      "type": 9,
+      "name": "DCT8X32",
+      "count": 0,
+      "implemented": true
+    },
+    {
+      "type": 10,
+      "name": "DCT32X16",
+      "count": 1149,
+      "implemented": true
+    },
+    {
+      "type": 11,
+      "name": "DCT16X32",
+      "count": 1187,
+      "implemented": true
+    },
+    {
+      "type": 12,
+      "name": "DCT4X8",
+      "count": 1459,
+      "implemented": true
+    },
+    {
+      "type": 13,
+      "name": "DCT8X4",
+      "count": 2859,
+      "implemented": true
+    },
+    {
+      "type": 14,
+      "name": "AFV0",
+      "count": 1038,
+      "implemented": true
+    },
+    {
+      "type": 15,
+      "name": "AFV1",
+      "count": 911,
+      "implemented": true
+    },
+    {
+      "type": 16,
+      "name": "AFV2",
+      "count": 1042,
+      "implemented": true
+    },
+    {
+      "type": 17,
+      "name": "AFV3",
+      "count": 935,
+      "implemented": true
+    },
+    {
+      "type": 18,
+      "name": "DCT64X64",
+      "count": 2673,
+      "implemented": true
+    },
+    {
+      "type": 19,
+      "name": "DCT64X32",
+      "count": 158,
+      "implemented": true
+    },
+    {
+      "type": 20,
+      "name": "DCT32X64",
+      "count": 97,
+      "implemented": true
+    },
+    {
+      "type": 21,
+      "name": "DCT128X128",
+      "count": 0,
+      "implemented": false
+    },
+    {
+      "type": 22,
+      "name": "DCT128X64",
+      "count": 0,
+      "implemented": false
+    },
+    {
+      "type": 23,
+      "name": "DCT64X128",
+      "count": 0,
+      "implemented": false
+    },
+    {
+      "type": 24,
+      "name": "DCT256X256",
+      "count": 0,
+      "implemented": false
+    },
+    {
+      "type": 25,
+      "name": "DCT256X128",
+      "count": 0,
+      "implemented": false
+    },
+    {
+      "type": 26,
+      "name": "DCT128X256",
+      "count": 0,
+      "implemented": false
+    }
+  ]
+}

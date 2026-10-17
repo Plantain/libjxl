@@ -1,0 +1,147 @@
+{
+  "batch": 8,
+  "evaluations": 20,
+  "kernel_sum_ms_per_tile": 0.3087887125,
+  "kernels": [
+    {
+      "name": "satellite_butteraugli::convolve_axis(const float *, int, int, satellite_butteraugli::Kernel, float *, bool)",
+      "instances": 720,
+      "ms_per_tile": 0.070819725
+    },
+    {
+      "name": "satellite_butteraugli::malta_difference(const float *, const float *, int, float, float, float, float *)",
+      "instances": 240,
+      "ms_per_tile": 0.06015029374999999
+    },
+    {
+      "name": "satellite_butteraugli::malta_accumulate(const float *, int, int, bool, float *)",
+      "instances": 240,
+      "ms_per_tile": 0.033400875000000003
+    },
+    {
+      "name": "satellite_feedback::tile_distance(const float *, int, int, const unsigned char *, const unsigned char *, float *, int *)",
+      "instances": 20,
+      "ms_per_tile": 0.02784205
+    },
+    {
+      "name": "satellite_reconstruction_gpu::inverse_dct(const float *, const unsigned char *, const unsigned char *, float *)",
+      "instances": 20,
+      "ms_per_tile": 0.019972437500000002
+    },
+    {
+      "name": "satellite_butteraugli::l2_errors(const float *, const float *, int, float, float *, float *)",
+      "instances": 40,
+      "ms_per_tile": 0.014830818749999999
+    },
+    {
+      "name": "satellite_butteraugli::combine_error(const float *, const float *, const float *, const float *, const float *, int, float, float *)",
+      "instances": 40,
+      "ms_per_tile": 0.0110760125
+    },
+    {
+      "name": "satellite_reconstruction_gpu::ac_dequant(const int *, const int *, const unsigned char *, const unsigned char *, const float *, const float *, const jxl_wp3::Params *, float *)",
+      "instances": 20,
+      "ms_per_tile": 0.01058061875
+    },
+    {
+      "name": "satellite_butteraugli::separable5(const float *, int, int, satellite_butteraugli::Kernel, float *)",
+      "instances": 120,
+      "ms_per_tile": 0.007247206250000001
+    },
+    {
+      "name": "satellite_reconstruction_gpu::lowest_frequencies(const float *, const unsigned char *, const unsigned char *, float *)",
+      "instances": 20,
+      "ms_per_tile": 0.00594860625
+    },
+    {
+      "name": "satellite_reconstruction_gpu::inverse_dct2(const float *, const unsigned char *, const unsigned char *, float *)",
+      "instances": 20,
+      "ms_per_tile": 0.00586600625
+    },
+    {
+      "name": "satellite_reconstruction_gpu::inverse_small(const float *, const unsigned char *, const unsigned char *, float *)",
+      "instances": 20,
+      "ms_per_tile": 0.0055648
+    },
+    {
+      "name": "satellite_butteraugli::separate_lf(const float *, int, float *)",
+      "instances": 40,
+      "ms_per_tile": 0.0040246125
+    },
+    {
+      "name": "satellite_reconstruction_gpu::transfer(const float *, float *, bool)",
+      "instances": 40,
+      "ms_per_tile": 0.0035444000000000005
+    },
+    {
+      "name": "satellite_reconstruction_gpu::epf1(const float *, const float *, float *, const jxl_wp3::Params *)",
+      "instances": 20,
+      "ms_per_tile": 0.00309760625
+    },
+    {
+      "name": "jxl_wp3::copy_plane(const float *, float *, int)",
+      "instances": 80,
+      "ms_per_tile": 0.002926
+    },
+    {
+      "name": "satellite_butteraugli::masking_precompute(const float *, int, float *)",
+      "instances": 40,
+      "ms_per_tile": 0.00282540625
+    },
+    {
+      "name": "satellite_butteraugli::separate_mf(int, float *)",
+      "instances": 40,
+      "ms_per_tile": 0.0026103999999999997
+    },
+    {
+      "name": "satellite_butteraugli::opsin_dynamics(const float *, const float *, int, float, float *)",
+      "instances": 40,
+      "ms_per_tile": 0.00257220625
+    },
+    {
+      "name": "satellite_butteraugli::separate_hf(int, float *)",
+      "instances": 40,
+      "ms_per_tile": 0.0025454125
+    },
+    {
+      "name": "satellite_reconstruction_gpu::gaborish(const float *, float *, const jxl_wp3::Params *)",
+      "instances": 20,
+      "ms_per_tile": 0.00237580625
+    },
+    {
+      "name": "satellite_butteraugli::subsample(const float *, int, int, float *)",
+      "instances": 20,
+      "ms_per_tile": 0.0021554062499999998
+    },
+    {
+      "name": "jxl_wp3::zero_plane(float *, int)",
+      "instances": 40,
+      "ms_per_tile": 0.0019784
+    },
+    {
+      "name": "satellite_reconstruction_gpu::xyb_linear(const float *, float *, const jxl_wp3::Params *)",
+      "instances": 20,
+      "ms_per_tile": 0.001675
+    },
+    {
+      "name": "satellite_butteraugli::supersample_add(const float *, int, int, float *)",
+      "instances": 20,
+      "ms_per_tile": 0.001533
+    },
+    {
+      "name": "satellite_reconstruction_gpu::compute_sigma(const int *, const unsigned char *, const unsigned char *, const unsigned char *, float *, const jxl_wp3::Params *)",
+      "instances": 20,
+      "ms_per_tile": 0.00108460625
+    },
+    {
+      "name": "satellite_reconstruction_gpu::dc_dequant(const int *, float *, const jxl_wp3::Params *)",
+      "instances": 20,
+      "ms_per_tile": 0.00027539999999999997
+    },
+    {
+      "name": "satellite_reconstruction_gpu::dc_smooth(const float *, float *, const jxl_wp3::Params *)",
+      "instances": 20,
+      "ms_per_tile": 0.0002656
+    }
+  ]
+}
