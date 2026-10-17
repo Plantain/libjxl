@@ -182,6 +182,9 @@ endif()
 include(jxl_cms.cmake)
 # The jxl library definition.
 include(jxl.cmake)
+if(JPEGXL_ENABLE_HYBRID)
+  add_subdirectory(jxl/hybrid)
+endif()
 
 # Other libraries outside the core jxl library.
 if(JPEGXL_ENABLE_TOOLS OR BUILD_TESTING)

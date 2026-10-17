@@ -1,0 +1,9 @@
+{
+  "tests": 8,
+  "failures": 0,
+  "seconds": 6.614,
+  "build": "Release",
+  "library": "shared",
+  "c11_header": true,
+  "scoreboard_adapter": true
+}

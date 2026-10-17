@@ -69,6 +69,7 @@
 #include "lib/jxl/fields.h"
 #include "lib/jxl/frame_dimensions.h"
 #include "lib/jxl/frame_header.h"
+#include "lib/jxl/hybrid/hooks.h"
 #include "lib/jxl/image.h"
 #include "lib/jxl/image_bundle.h"
 #include "lib/jxl/image_metadata.h"
@@ -1146,11 +1147,16 @@ Status ComputeVarDCTEncodingData(const FrameHeader& frame_header,
   JxlMemoryManager* memory_manager = enc_state->memory_manager();
   // Save pre-Gaborish opsin for AR control field heuristics computation.
   Image3F orig_opsin;
-  JXL_ASSIGN_OR_RETURN(
-      orig_opsin, Image3F::Create(memory_manager, rect.xsize(), rect.ysize()));
-  JXL_RETURN_IF_ERROR(CopyImageTo(rect, *opsin, Rect(orig_opsin), &orig_opsin));
-  JXL_RETURN_IF_ERROR(orig_opsin.ShrinkTo(enc_state->shared.frame_dim.xsize,
-                                          enc_state->shared.frame_dim.ysize));
+  HybridHooks* hooks = enc_state->cparams.hybrid_hooks;
+  if (!(hooks && hooks->SkipStage(6))) {
+    JXL_ASSIGN_OR_RETURN(
+        orig_opsin,
+        Image3F::Create(memory_manager, rect.xsize(), rect.ysize()));
+    JXL_RETURN_IF_ERROR(
+        CopyImageTo(rect, *opsin, Rect(orig_opsin), &orig_opsin));
+    JXL_RETURN_IF_ERROR(orig_opsin.ShrinkTo(enc_state->shared.frame_dim.xsize,
+                                            enc_state->shared.frame_dim.ysize));
+  }
 
   JXL_RETURN_IF_ERROR(LossyFrameHeuristics(frame_header, enc_state, enc_modular,
                                            linear, opsin, rect, cms, pool,
@@ -1159,8 +1165,14 @@ Status ComputeVarDCTEncodingData(const FrameHeader& frame_header,
   JXL_RETURN_IF_ERROR(InitializePassesEncoder(
       frame_header, *opsin, rect, cms, pool, enc_state, enc_modular, aux_out));
 
-  JXL_RETURN_IF_ERROR(
-      ComputeARHeuristics(frame_header, enc_state, orig_opsin, rect, pool));
+  if (!(hooks && hooks->SkipStage(6))) {
+    JXL_RETURN_IF_ERROR(
+        ComputeARHeuristics(frame_header, enc_state, orig_opsin, rect, pool));
+  }
+  if (hooks) {
+    JXL_RETURN_IF_ERROR(
+        hooks->Stage(6, enc_state, Rect(enc_state->shared.raw_quant_field)));
+  }
 
   JXL_RETURN_IF_ERROR(ComputeACMetadata(pool, enc_state, enc_modular));
 
@@ -1582,7 +1594,8 @@ Status ComputeEncodingData(
   ImageF* black = black_eci ? &extra_channels[black_idx] : nullptr;
   bool has_interleaved_alpha = false;
   JxlChunkedFrameInputSource input = frame_data.GetInputSource();
-  if (!jpeg_data) {
+  HybridHooks* hooks = cparams.hybrid_hooks;
+  if (!jpeg_data && !(hooks && hooks->HasOpsin())) {
     JXL_RETURN_IF_ERROR(CopyColorChannels(input, patch_rect, frame_info,
                                           metadata->m, pool, &color, alpha,
                                           &has_interleaved_alpha));
@@ -1597,10 +1610,13 @@ Status ComputeEncodingData(
   Image3F* linear = nullptr;
 
   if (!jpeg_data) {
-    if (frame_header.color_transform == ColorTransform::kXYB &&
-        frame_info.ib_needs_color_transform) {
+    if (hooks && hooks->HasOpsin()) {
+      JXL_RETURN_IF_ERROR(hooks->LoadOpsin(&color));
+    } else if (frame_header.color_transform == ColorTransform::kXYB &&
+               frame_info.ib_needs_color_transform) {
       if (frame_header.encoding == FrameEncoding::kVarDCT &&
-          cparams.speed_tier <= SpeedTier::kKitten) {
+          (cparams.speed_tier <= SpeedTier::kKitten ||
+           (hooks && !hooks->SkipStage(5)))) {
         JXL_ASSIGN_OR_RETURN(linear_storage,
                              Image3F::Create(memory_manager, patch_rect.xsize(),
                                              patch_rect.ysize()));
@@ -1634,10 +1650,12 @@ Status ComputeEncodingData(
   Rect group_rect(x0 - patch_rect.x0(), y0 - patch_rect.y0(),
                   RoundUpToBlockDim(xsize), RoundUpToBlockDim(ysize));
 
-  if (enc_state.initialize_global_state && !jpeg_data) {
+  if (enc_state.initialize_global_state && !jpeg_data &&
+      !(hooks && hooks->HasFrameHeader())) {
     ComputeChromacityAdjustments(cparams, color, group_rect,
                                  &mutable_frame_header);
   }
+  if (hooks) JXL_RETURN_IF_ERROR(hooks->OnFrameHeader(&mutable_frame_header));
 
   bool has_jpeg_data = (jpeg_data != nullptr);
   ComputeNoiseParams(cparams, enc_state.streaming_mode, has_jpeg_data, color,

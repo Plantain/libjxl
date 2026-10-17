@@ -1,0 +1,39 @@
+{
+  "threshold_tiles_per_s": 900,
+  "passed": false,
+  "rounds": [
+    {
+      "mode": "bench",
+      "round": 1,
+      "distance": 1.2,
+      "threads": 16,
+      "tiles": 120,
+      "encodes": 2400,
+      "seconds": 4.380584,
+      "tiles_per_s": 547.872,
+      "bytes": 57866760
+    },
+    {
+      "mode": "bench",
+      "round": 2,
+      "distance": 1.2,
+      "threads": 16,
+      "tiles": 120,
+      "encodes": 2400,
+      "seconds": 4.266502,
+      "tiles_per_s": 562.522,
+      "bytes": 57866760
+    },
+    {
+      "mode": "bench",
+      "round": 3,
+      "distance": 1.2,
+      "threads": 16,
+      "tiles": 120,
+      "encodes": 2400,
+      "seconds": 4.233158,
+      "tiles_per_s": 566.953,
+      "bytes": 57866760
+    }
+  ]
+}

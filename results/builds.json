@@ -1,0 +1,12 @@
+{
+  "hybrid_on": true,
+  "hybrid_off": true,
+  "static_library": true,
+  "shared_library": true,
+  "c11_header": true,
+  "sanitizer_build": true,
+  "container": "satellite-cujpegxl-build:cuda12.8",
+  "build_cpus": 8,
+  "build_nice": 10,
+  "remote_disk_kib": 2242700
+}

@@ -25,8 +25,11 @@
 
 namespace jxl {
 
+class HybridHooks;
+
 // NOLINTNEXTLINE(clang-analyzer-optin.performance.Padding)
 struct CompressParams {
+  HybridHooks* hybrid_hooks = nullptr;  // internal, borrowed for one encode
   float butteraugli_distance = 1.0f;
 
   // explicit distances for extra channels (defaults to butteraugli_distance

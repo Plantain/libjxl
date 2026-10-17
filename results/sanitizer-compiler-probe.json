@@ -1,0 +1,7 @@
+{
+  "compiler": "GCC 13",
+  "flags": "-O2 -g -fsanitize=address,undefined",
+  "merge_all_constants_exit": 1,
+  "no_merge_all_constants_exit": 0,
+  "diagnostic": "stack-use-after-scope in merged local constexpr array"
+}

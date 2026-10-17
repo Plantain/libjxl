@@ -94,6 +94,12 @@ struct ColorCorrelation {
 
   const float* DCFactors() const { return dc_factors_; }
 
+  void SetBaseCorrelation(float x, float b) {
+    base_correlation_x_ = x;
+    base_correlation_b_ = b;
+    RecomputeDCFactors();
+  }
+
   void RecomputeDCFactors() {
     dc_factors_[0] = YtoXRatio(ytox_dc_);
     dc_factors_[2] = YtoBRatio(ytob_dc_);
@@ -130,6 +136,7 @@ struct ColorCorrelationMap {
                                               bool XYB = true);
 
   const ColorCorrelation& base() const { return base_; }
+  ColorCorrelation& mutable_base() { return base_; }
   Status DecodeDC(BitReader* br) { return base_.DecodeDC(br); }
 
   ImageSB ytox_map;

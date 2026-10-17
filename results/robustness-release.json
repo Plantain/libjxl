@@ -1,0 +1,8 @@
+{
+  "mode": "robustness",
+  "seed": 1213809201,
+  "rejected": 2022,
+  "valid": 117,
+  "extreme_errors": 0,
+  "failures": 0
+}

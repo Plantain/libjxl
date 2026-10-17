@@ -54,6 +54,7 @@
 #include "lib/jxl/epf.h"
 #include "lib/jxl/frame_dimensions.h"
 #include "lib/jxl/frame_header.h"
+#include "lib/jxl/hybrid/hooks.h"
 #include "lib/jxl/image.h"
 #include "lib/jxl/image_metadata.h"
 #include "lib/jxl/image_ops.h"
@@ -893,6 +894,7 @@ Status ComputeARHeuristics(const FrameHeader& frame_header,
                            PassesEncoderState* enc_state,
                            const Image3F& orig_opsin, const Rect& rect,
                            ThreadPool* pool) {
+  HybridHeuristicScope heuristic_effort(&enc_state->cparams);
   const CompressParams& cparams = enc_state->cparams;
   PassesSharedState& shared = enc_state->shared;
   const FrameDimensions& frame_dim = shared.frame_dim;
@@ -1026,7 +1028,13 @@ Status LossyFrameHeuristics(const FrameHeader& frame_header,
                             const Image3F* linear, Image3F* opsin,
                             const Rect& rect, const JxlCmsInterface& cms,
                             ThreadPool* pool, AuxOut* aux_out) {
+  HybridHeuristicScope heuristic_effort(&enc_state->cparams);
   const CompressParams& cparams = enc_state->cparams;
+  HybridHooks* hooks = cparams.hybrid_hooks;
+  if (hooks && hooks->FullReplay()) {
+    heuristic_effort.Restore();
+    return hooks->Replay(frame_header, enc_state, opsin, rect, pool);
+  }
   const bool streaming_mode = enc_state->streaming_mode;
   const bool initialize_global_state = enc_state->initialize_global_state;
   PassesSharedState& shared = enc_state->shared;
@@ -1095,8 +1103,11 @@ Status LossyFrameHeuristics(const FrameHeader& frame_header,
   // Call InitialQuantField only in Hare mode or slower. Otherwise, rely
   // on simple heuristics in FindBestAcStrategy, or set a constant for Falcon
   // mode.
-  if (cparams.speed_tier > SpeedTier::kHare ||
-      cparams.disable_perceptual_optimizations) {
+  if (hooks && hooks->SkipStage(1)) {
+    float q = 0.39 / cparams.butteraugli_distance;
+    quantizer.ComputeGlobalScaleAndQuant(quant_dc, q, 0);
+  } else if (cparams.speed_tier > SpeedTier::kHare ||
+             cparams.disable_perceptual_optimizations) {
     JXL_ASSIGN_OR_RETURN(initial_quant_field,
                          ImageF::Create(memory_manager, frame_dim.xsize_blocks,
                                         frame_dim.ysize_blocks));
@@ -1130,6 +1141,11 @@ Status LossyFrameHeuristics(const FrameHeader& frame_header,
   }
 
   // TODO(veluca): do something about animations.
+  if (hooks) {
+    JXL_RETURN_IF_ERROR(hooks->Stage(1, enc_state, Rect(raw_quant_field),
+                                     &initial_quant_field,
+                                     &initial_quant_masking));
+  }
 
   // Apply inverse-gaborish.
   if (frame_header.loop_filter.gab) {
@@ -1147,6 +1163,8 @@ Status LossyFrameHeuristics(const FrameHeader& frame_header,
     JXL_RETURN_IF_ERROR(FindBestDequantMatrices(
         memory_manager, cparams, modular_frame_encoder, &matrices));
   }
+
+  if (hooks) JXL_RETURN_IF_ERROR(hooks->OnOpsin(*opsin));
 
   JXL_RETURN_IF_ERROR(cfl_heuristics.Init(rect));
   JXL_RETURN_IF_ERROR(acs_heuristics.Init(*opsin, rect, initial_quant_field,
@@ -1167,31 +1185,42 @@ Status LossyFrameHeuristics(const FrameHeader& frame_header,
 
     // For speeds up to Wombat, we only compute the color correlation map
     // once we know the transform type and the quantization map.
-    if (cparams.speed_tier <= SpeedTier::kSquirrel) {
+    if (cparams.speed_tier <= SpeedTier::kSquirrel &&
+        !(hooks && hooks->SkipStage(2))) {
       JXL_RETURN_IF_ERROR(cfl_heuristics.ComputeTile(
           r, *opsin, rect, matrices,
           /*ac_strategy=*/nullptr,
           /*raw_quant_field=*/nullptr,
           /*quantizer=*/nullptr, /*fast=*/false, thread, &cmap));
     }
+    if (hooks) JXL_RETURN_IF_ERROR(hooks->Stage(2, enc_state, r));
 
     // Choose block sizes.
-    JXL_RETURN_IF_ERROR(
-        acs_heuristics.ProcessRect(r, cmap, &ac_strategy, thread));
+    if (!(hooks && hooks->SkipStage(3))) {
+      JXL_RETURN_IF_ERROR(
+          acs_heuristics.ProcessRect(r, cmap, &ac_strategy, thread));
+    }
+    if (hooks) JXL_RETURN_IF_ERROR(hooks->Stage(3, enc_state, r));
 
     // Always set the initial quant field, so we can compute the CfL map with
     // more accuracy. The initial quant field might change in slower modes, but
     // adjusting the quant field with butteraugli when all the other encoding
     // parameters are fixed is likely a more reliable choice anyway.
-    JXL_RETURN_IF_ERROR(AdjustQuantField(
-        ac_strategy, r, cparams.butteraugli_distance, &initial_quant_field));
-    quantizer.SetQuantFieldRect(initial_quant_field, r, &raw_quant_field);
+    if (!(hooks && hooks->SkipStage(4))) {
+      JXL_RETURN_IF_ERROR(AdjustQuantField(
+          ac_strategy, r, cparams.butteraugli_distance, &initial_quant_field));
+      quantizer.SetQuantFieldRect(initial_quant_field, r, &raw_quant_field);
 
-    // Compute a non-default CfL map if we are at Hare speed, or slower.
-    if (cparams.speed_tier <= SpeedTier::kHare) {
-      JXL_RETURN_IF_ERROR(cfl_heuristics.ComputeTile(
-          r, *opsin, rect, matrices, &ac_strategy, &raw_quant_field, &quantizer,
-          /*fast=*/cparams.speed_tier >= SpeedTier::kWombat, thread, &cmap));
+      // Compute a non-default CfL map if we are at Hare speed, or slower.
+      if (cparams.speed_tier <= SpeedTier::kHare) {
+        JXL_RETURN_IF_ERROR(cfl_heuristics.ComputeTile(
+            r, *opsin, rect, matrices, &ac_strategy, &raw_quant_field,
+            &quantizer,
+            /*fast=*/cparams.speed_tier >= SpeedTier::kWombat, thread, &cmap));
+      }
+    }
+    if (hooks) {
+      JXL_RETURN_IF_ERROR(hooks->Stage(4, enc_state, r, &initial_quant_field));
     }
     return true;
   };
@@ -1205,16 +1234,23 @@ Status LossyFrameHeuristics(const FrameHeader& frame_header,
   JXL_RETURN_IF_ERROR(
       RunOnPool(pool, 0, num_tiles, prepare, process_tile, "Enc Heuristics"));
 
-  JXL_RETURN_IF_ERROR(acs_heuristics.Finalize(frame_dim, ac_strategy, aux_out));
+  if (!(hooks && hooks->SkipStage(3))) {
+    JXL_RETURN_IF_ERROR(
+        acs_heuristics.Finalize(frame_dim, ac_strategy, aux_out));
+  }
 
   // Refine quantization levels.
-  if (!streaming_mode && !cparams.disable_perceptual_optimizations) {
+  if (!streaming_mode && !cparams.disable_perceptual_optimizations &&
+      !(hooks && hooks->SkipStage(5))) {
     ImageB& epf_sharpness = shared.epf_sharpness;
     FillPlane(static_cast<uint8_t>(4), &epf_sharpness, Rect(epf_sharpness));
     JXL_RETURN_IF_ERROR(FindBestQuantizer(frame_header, linear, *opsin,
                                           initial_quant_field, enc_state, cms,
                                           pool, aux_out));
   }
+  if (hooks)
+    JXL_RETURN_IF_ERROR(hooks->Stage(5, enc_state, Rect(raw_quant_field)));
+  heuristic_effort.Restore();
 
   // Choose a context model that depends on the amount of quantization for AC.
   if (cparams.speed_tier < SpeedTier::kFalcon && initialize_global_state) {

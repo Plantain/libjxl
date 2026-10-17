@@ -79,6 +79,13 @@ class Quantizer {
   }
 
   // Recomputes other derived fields after global_scale_ has changed.
+  // Caller validates the serialized ranges before using this internal seam.
+  void SetRawParams(int global_scale, int quant_dc) {
+    global_scale_ = global_scale;
+    quant_dc_ = quant_dc;
+    RecomputeFromGlobalScale();
+  }
+
   void RecomputeFromGlobalScale() {
     global_scale_float_ = global_scale_ * (1.0 / kGlobalScaleDenom);
     inv_global_scale_ = 1.0 * kGlobalScaleDenom / global_scale_;

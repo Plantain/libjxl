@@ -1,0 +1,16 @@
+{
+  "mode": "robustness",
+  "seed": 1213809201,
+  "rejected": 2022,
+  "valid": 117,
+  "extreme_errors": 0,
+  "failures": 0,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "leak_detection": true,
+  "halt_on_error": true,
+  "compiler": "GCC 13",
+  "merge_all_constants": false
+}

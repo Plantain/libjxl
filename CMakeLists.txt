@@ -139,6 +139,7 @@ set(JPEGXL_ENABLE_FUZZERS ${ENABLE_FUZZERS_DEFAULT} CACHE BOOL
     "Build JPEGXL fuzzer targets.")
 set(JPEGXL_ENABLE_DEVTOOLS false CACHE BOOL
     "Build JPEGXL developer tools.")
+option(JPEGXL_ENABLE_HYBRID "Build the experimental hybrid tile encoder" OFF)
 set(JPEGXL_ENABLE_TOOLS true CACHE BOOL
     "Build JPEGXL user tools: cjxl and djxl.")
 set(JPEGXL_ENABLE_DOXYGEN true CACHE BOOL

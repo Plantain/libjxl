@@ -41,7 +41,12 @@ Status ComputeARHeuristics(const FrameHeader& frame_header,
                            const Image3F& orig_opsin, const Rect& rect,
                            ThreadPool* pool);
 
-void FindBestBlockEntropyModel(PassesEncoderState& enc_state);
+struct CompressParams;
+struct BlockCtxMap;
+class AcStrategyImage;
+void FindBestBlockEntropyModel(const CompressParams& cparams, const ImageI& rqf,
+                               const AcStrategyImage& ac_strategy,
+                               BlockCtxMap* block_ctx_map);
 
 Status DownsampleImage2_Iterative(Image3F* opsin);
 Status DownsampleImage2_Sharper(Image3F* opsin);

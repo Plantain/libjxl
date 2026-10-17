@@ -1,0 +1,10 @@
+{
+  "mode": "identity",
+  "distance": 1.45,
+  "tiles": 400,
+  "checks": 5200,
+  "failures": 0,
+  "backend7_bytes": 4893365,
+  "native_e8_bytes": 4885878,
+  "decoded_float_equal": true
+}

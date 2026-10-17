@@ -1,0 +1,4 @@
+JXL_HYBRID_1 {
+  global: JxlHybrid*;
+  local: *;
+};
